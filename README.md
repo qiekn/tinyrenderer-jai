@@ -1,1 +1,1 @@
-# tinyrenderer-jai
+# Software Rasterization Renderer in Jai
