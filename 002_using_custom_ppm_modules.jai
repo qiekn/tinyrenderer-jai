@@ -11,7 +11,7 @@ main :: () {
             r := cast(float) x/width;
             g := cast(float) y/height;
             b := 0.0;
-            ppm_color := ppm.convert_to_ppm_color(r,g,b);
+            ppm_color := ppm.make_color(r,g,b);
             ppm.set_pixel(*image, x, y, ppm_color);
         }
     }

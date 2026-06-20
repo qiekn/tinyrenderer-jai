@@ -2,6 +2,18 @@
 #import "Math";
 #import "File";
 
+//
+// make_image :: (width: int, height: int) -> PPM_Image
+// 
+// make_color :: (color : Vector3) -> PPM_Color
+// make_color :: (color : Vector4) -> PPM_Color
+// make_color :: (r: float, g: float, b: float) -> PPM_Color
+//
+// set_pixel  :: (image: *PPM_Image, x: int, y: int, color: PPM_Color)
+//
+// write_p3   :: (filename: string, image: *PPM_Image)
+// write_p6   :: (filename: string, image: *PPM_Image)
+//
 
 PPM_Color :: struct {
     r, g, b: u8;
@@ -28,18 +40,20 @@ set_pixel:: (image: *PPM_Image, x: int, y: int, color: PPM_Color) {
     image.pixels[y * image.width + x] = color;
 }
 
-convert_to_ppm_color :: (r: float, g: float, b: float) -> PPM_Color {
+make_color :: (color : Vector3) {
+    make_color(color.x, color.y, color.z);
+} 
+
+make_color :: (color : Vector4) {
+    make_color(color.xyz);
+}
+
+make_color :: (r: float, g: float, b: float) -> PPM_Color {
     return .{
         cast(u8)(255.999 * clamp_to_float_01(r)),
         cast(u8)(255.999 * clamp_to_float_01(g)),
         cast(u8)(255.999 * clamp_to_float_01(b)),
     };
-}
-
-clamp_to_float_01 :: (v: float) -> float {
-    if v < 0 return 0;
-    if v > 1 return 1;
-    return v;
 }
 
 write_p3 :: (filename: string, image: *PPM_Image) {
@@ -77,4 +91,12 @@ write_p6 :: (filename: string, image: *PPM_Image) {
     }
 
     write_entire_file(filename, *builder);
+}
+
+#scope_file
+
+clamp_to_float_01 :: (v: float) -> float {
+    if v < 0 return 0;
+    if v > 1 return 1;
+    return v;
 }
