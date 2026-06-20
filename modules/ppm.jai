@@ -1,59 +1,46 @@
-#import "Basic";
-#import "Math";
-#import "File";
-
 //
 // make_image :: (width: int, height: int) -> PPM_Image
-// 
-// make_color :: (color : Vector3) -> PPM_Color
-// make_color :: (color : Vector4) -> PPM_Color
-// make_color :: (r: float, g: float, b: float) -> PPM_Color
+// make_image :: (width: int, height: int, background_color: Vector4) -> PPM_Image
 //
-// set_pixel  :: (image: *PPM_Image, x: int, y: int, color: PPM_Color)
+// clear      :: (image: *PPM_Image, color: Vector4)
+//
+// set_pixel  :: (image: *PPM_Image, x: int, y: int, color: Vector4)
 //
 // write_p3   :: (filename: string, image: *PPM_Image)
 // write_p6   :: (filename: string, image: *PPM_Image)
 //
 
-PPM_Color :: struct {
-    r, g, b: u8;
-}
-
 PPM_Image :: struct {
     width:  int;
     height: int;
-    pixels: [] PPM_Color;
+    pixels: [] Vector4;
 }
 
 make_image :: (width: int, height: int) -> PPM_Image {
     image: PPM_Image;
     image.width  = width;
     image.height = height;
-    image.pixels = NewArray(width * height, PPM_Color);
+    image.pixels = NewArray(width * height, Vector4);
     return image;
 }
 
-set_pixel:: (image: *PPM_Image, x: int, y: int, color: PPM_Color) {
+make_image :: (width: int, height: int, background_color: Vector4) -> PPM_Image {
+    image := make_image(width, height);
+    clear(*image, background_color);
+    return image;
+}
+
+set_pixel :: (image: *PPM_Image, x: int, y: int, color: Vector4) {
     if x < 0 || x >= image.width  return;
     if y < 0 || y >= image.height return;
 
     image.pixels[y * image.width + x] = color;
 }
 
-make_color :: (color : Vector3) {
-    make_color(color.x, color.y, color.z);
-} 
-
-make_color :: (color : Vector4) {
-    make_color(color.xyz);
-}
-
-make_color :: (r: float, g: float, b: float) -> PPM_Color {
-    return .{
-        cast(u8)(255.999 * clamp_to_float_01(r)),
-        cast(u8)(255.999 * clamp_to_float_01(g)),
-        cast(u8)(255.999 * clamp_to_float_01(b)),
-    };
+clear :: (image: *PPM_Image, color: Vector4) {
+    for * image.pixels {
+        it.* = color;
+    }
 }
 
 write_p3 :: (filename: string, image: *PPM_Image) {
@@ -65,8 +52,8 @@ write_p3 :: (filename: string, image: *PPM_Image) {
 
     for y: 0..image.height - 1 {
         for x: 0..image.width - 1 {
-            c := image.pixels[y * image.width + x];
-            print_to_builder(*builder, "% % %\n", c.r, c.g, c.b);
+            r, g, b := to_rgb8(image.pixels[y * image.width + x]);
+            print_to_builder(*builder, "% % %\n", r, g, b);
         }
     }
 
@@ -82,11 +69,10 @@ write_p6 :: (filename: string, image: *PPM_Image) {
 
     for y: 0..image.height - 1 {
         for x: 0..image.width - 1 {
-            c := image.pixels[y * image.width + x];
-
-            append(*builder, c.r);
-            append(*builder, c.g);
-            append(*builder, c.b);
+            r, g, b := to_rgb8(image.pixels[y * image.width + x]);
+            append(*builder, r);
+            append(*builder, g);
+            append(*builder, b);
         }
     }
 
@@ -95,8 +81,19 @@ write_p6 :: (filename: string, image: *PPM_Image) {
 
 #scope_file
 
+// Convert a floating-point color (components in 0..1) to 8-bit RGB; alpha is not written to PPM.
+to_rgb8 :: (c: Vector4) -> (r: u8, g: u8, b: u8) {
+    return cast(u8)(255.999 * clamp_to_float_01(c.x)),
+           cast(u8)(255.999 * clamp_to_float_01(c.y)),
+           cast(u8)(255.999 * clamp_to_float_01(c.z));
+}
+
 clamp_to_float_01 :: (v: float) -> float {
     if v < 0 return 0;
     if v > 1 return 1;
     return v;
 }
+
+#import "Basic";
+#import "Math";
+#import "File";
