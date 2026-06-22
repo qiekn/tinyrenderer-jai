@@ -3,7 +3,6 @@
 #import "Random";
 #import "obj";
 
-
 using ppm :: #import "ppm";
 #import,file "colors.jai";
 
@@ -13,32 +12,25 @@ width, height := 1024, 1024;
 vertices : [..] Vector3;
 triangles : [..] Triangle;
 
-// we can use magick.exe to scale and convert to png for beauty
-// magick result.ppm -scale 400% result.png
-
 // ----------------------------------------------------------------------------: entry
 
 main :: () {
     image := make_image(width, height, BLACK);
     defer free_image(*image);
 
-    random_seed(69105);
-    count := 1 << 24;
-
     load_obj("./assets/diablo.obj", *vertices, *triangles);
 
-    t0 := current_time_monotonic(); // Apollo Time
+    t0 := current_time_monotonic(); // Drawing
 
     for triangles {
         draw_triangle(*image, it, RED);
     }
 
-    t1 := current_time_monotonic();
-    // Write to file
+    t1 := current_time_monotonic(); // Write to file
 
     ppm.write_p3("test.ppm", *image);
 
-    t2 := current_time_monotonic();
+    t2 := current_time_monotonic(); // Print benchmark result
 
     draw_seconds, ok0 := to_float64_seconds(t1 - t0);
     write_seconds, ok1 := to_float64_seconds(t2 - t1);
@@ -63,8 +55,6 @@ draw_triangle :: (image: *PPM_Image, triangle: Triangle, color: Vector4 = RED) {
 }
 
 draw_line :: (image: *PPM_Image, a: Vector2Int, b: Vector2Int, color: Vector4) {
-    round_to_int :: (x : float) -> int { return cast(int)(x + 0.5); }
-
     // If the line is steep, we transpose the image
     steep : bool = abs(a.x - b.x) < abs(a.y - b.y);
     if steep {
@@ -94,17 +84,4 @@ project :: (original_point : Vector3) -> Vector2Int {
     x := cast(int) ((original_point.x * 0.5 + 0.5) * width);
     y := cast(int) ((original_point.y * 0.5 + 0.5) * height);
     return Vector2Int.{x, y};
-}
-
-random_int :: (max : int) -> int {
-    return cast(int)(random_get() % cast(u64) max);
-}
-
-random_color :: () -> Vector4 {
-    return Vector4.{
-        random_get_zero_to_one_open(),
-        random_get_zero_to_one_open(),
-        random_get_zero_to_one_open(),
-        255.0,
-    };
 }
