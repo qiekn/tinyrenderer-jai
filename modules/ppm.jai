@@ -19,6 +19,10 @@ PPM_Image :: struct {
     pixels: [] Vector4;
 }
 
+Vector2Int :: struct {
+    x, y : int;
+}
+
 make_image :: (width: int, height: int) -> PPM_Image {
     image: PPM_Image;
     image.width  = width;
@@ -45,6 +49,10 @@ free_image :: (image: *PPM_Image) {
 
 set_pixel :: (image: *PPM_Image, pos: Vector2, color: Vector4) {
     set_pixel(image, cast(int) pos.x, cast(int) pos.y, color);
+}
+
+set_pixel :: (image: *PPM_Image, pos: Vector2Int, color: Vector4) {
+    set_pixel(image, pos.x, pos.y, color);
 }
 
 set_pixel :: (image: *PPM_Image, x: int, y: int, color: Vector4) {
