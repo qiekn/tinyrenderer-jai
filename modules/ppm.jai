@@ -1,13 +1,16 @@
 //
-// make_image :: (width: int, height: int) -> PPM_Image
-// make_image :: (width: int, height: int, background_color: Vector4) -> PPM_Image
+// PPM_Image   :: struct
 //
-// clear      :: (image: *PPM_Image, color: Vector4)
+// make_image  :: (width: int, height: int) -> PPM_Image
+// make_image  :: (width: int, height: int, background_color: Vector4) -> PPM_Image
+// free_image  :: (image: *PPM_Image)
 //
-// set_pixel  :: (image: *PPM_Image, x: int, y: int, color: Vector4)
+// set_pixel   :: (image: *PPM_Image, x: int, y: int, color: Vector4)
+// set_pixel   :: (image: *PPM_Image, pos: Vector2, color: Vector4)
+// clear_color :: (image: *PPM_Image, color: Vector4)
 //
-// write_p3   :: (filename: string, image: *PPM_Image)
-// write_p6   :: (filename: string, image: *PPM_Image)
+// write_p3    :: (filename: string, image: *PPM_Image)
+// write_p6    :: (filename: string, image: *PPM_Image)
 //
 
 PPM_Image :: struct {
@@ -20,14 +23,28 @@ make_image :: (width: int, height: int) -> PPM_Image {
     image: PPM_Image;
     image.width  = width;
     image.height = height;
-    image.pixels = NewArray(width * height, Vector4);
+    image.pixels = NewArray(width * height, Vector4); // Caller should release this with free_image.
     return image;
 }
 
 make_image :: (width: int, height: int, background_color: Vector4) -> PPM_Image {
     image := make_image(width, height);
-    clear(*image, background_color);
+    clear_color(*image, background_color);
     return image;
+}
+
+free_image :: (image: *PPM_Image) {
+    if image.pixels.data {
+        free(image.pixels.data);
+    }
+
+    image.width = 0;
+    image.height = 0;
+    image.pixels = .{};
+}
+
+set_pixel :: (image: *PPM_Image, pos: Vector2, color: Vector4) {
+    set_pixel(image, cast(int) pos.x, cast(int) pos.y, color);
 }
 
 set_pixel :: (image: *PPM_Image, x: int, y: int, color: Vector4) {
@@ -37,7 +54,7 @@ set_pixel :: (image: *PPM_Image, x: int, y: int, color: Vector4) {
     image.pixels[y * image.width + x] = color;
 }
 
-clear :: (image: *PPM_Image, color: Vector4) {
+clear_color :: (image: *PPM_Image, color: Vector4) {
     for * image.pixels {
         it.* = color;
     }
@@ -50,7 +67,7 @@ write_p3 :: (filename: string, image: *PPM_Image) {
     print_to_builder(*builder, "% %\n", image.width, image.height);
     print_to_builder(*builder, "255\n");
 
-    for y: 0..image.height - 1 {
+    for #v2 < y : 0..image.height-1 {
         for x: 0..image.width - 1 {
             r, g, b := to_rgb8(image.pixels[y * image.width + x]);
             print_to_builder(*builder, "% % %\n", r, g, b);
@@ -67,7 +84,7 @@ write_p6 :: (filename: string, image: *PPM_Image) {
     print_to_builder(*builder, "% %\n", image.width, image.height);
     print_to_builder(*builder, "255\n");
 
-    for y: 0..image.height - 1 {
+    for #v2 < y : 0..image.height - 1 {
         for x: 0..image.width - 1 {
             r, g, b := to_rgb8(image.pixels[y * image.width + x]);
             append(*builder, r);
