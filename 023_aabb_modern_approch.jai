@@ -10,7 +10,7 @@ AABB :: struct {
     y_max: int;
 }
 
-Triagnle :: struct {
+Triangle :: struct {
     ax, ay : int;
     bx, by : int;
     cx, cy : int;
@@ -29,7 +29,7 @@ main :: () {
 }
 
 
-draw_triangle :: (image: *ppm.PPM_Image, using triangle : Triagnle, color: Vector4 = RED) {
+draw_triangle :: (image: *ppm.PPM_Image, using triangle : Triangle, color: Vector4 = RED) {
     aabb := get_aabb(ax, ay, bx, by, cx, cy);
     for y: aabb.y_min .. aabb.y_max {
         for x: aabb.x_min .. aabb.x_max {
@@ -55,7 +55,7 @@ get_aabb :: (ax: int, ay: int, bx: int, by: int, cx: int, cy: int) -> AABB {
     return .{x_min, x_max, y_min, y_max};
 }
 
-point_inside_triangle :: (x: int, y: int, using triangle: Triagnle) -> bool {
+point_inside_triangle :: (x: int, y: int, using triangle: Triangle) -> bool {
     s0 := vec2_cross_sign(ax, ay, bx, by, x, y);
     s1 := vec2_cross_sign(bx, by, cx, cy, x, y);
     s2 := vec2_cross_sign(cx, cy, ax, ay, x, y);
