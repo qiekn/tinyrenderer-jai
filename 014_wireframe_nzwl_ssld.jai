@@ -10,18 +10,18 @@ using ppm :: #import "ppm";
 
 width, height := 4096, 4096;
 vertices : [..] Vector3;
-triangles : [..] Triangle;
+indices : [..] Triangle_Indices;
 
 // ----------------------------------------------------------------------------: entry
 
 main :: () {
     image := make_image(width, height, BLACK);
-    load_obj("./assets/nzwl_ssld.obj", *vertices, *triangles);
-    for triangles draw_triangle(*image, it, GREEN);
+    load_obj("./assets/nzwl_ssld.obj", *vertices, *indices);
+    for indices draw_triangle(*image, it, GREEN);
     ppm.write_p3("test.ppm", *image);
 }
 
-draw_triangle :: (image: *PPM_Image, triangle: Triangle, color: Vector4 = RED) {
+draw_triangle :: (image: *PPM_Image, triangle: Triangle_Indices, color: Vector4 = RED) {
     a := project(vertices[triangle.a]);
     b := project(vertices[triangle.b]);
     c := project(vertices[triangle.c]);

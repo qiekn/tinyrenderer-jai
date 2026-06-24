@@ -4,11 +4,11 @@
 // (We just want to get vertices and triangles)
 //
 
-Triangle :: struct {
+Triangle_Indices :: struct {
     a, b, c: int;
 }
 
-load_obj :: (filename: string, vertices: *[..]Vector3, triangles: *[..]Triangle) -> bool {
+load_obj :: (filename: string, vertices: *[..]Vector3, triangles: *[..]Triangle_Indices) -> bool {
     data, ok := read_entire_file(filename);
     if !ok {
         print("Failed to read obj file: %\n", filename);
@@ -45,7 +45,7 @@ Obj_Line_Parser :: struct {
     i: int;
 }
 
-parse_obj_line :: (line: string, vertices: *[..]Vector3, triangles: *[..]Triangle) {
+parse_obj_line :: (line: string, vertices: *[..]Vector3, triangles: *[..]Triangle_Indices) {
     parser := Obj_Line_Parser.{line, 0};
     skip_spaces(*parser);
 
@@ -72,7 +72,7 @@ parse_obj_line :: (line: string, vertices: *[..]Vector3, triangles: *[..]Triangl
         c := parse_obj_face_vertex_index(*parser);
 
         if a >= 0 && b >= 0 && c >= 0 && only_spaces_remaining(*parser) {
-            array_add(triangles, Triangle.{a, b, c});
+            array_add(triangles, Triangle_Indices.{a, b, c});
         }
 
         return;

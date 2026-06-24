@@ -10,7 +10,7 @@ using ppm :: #import "ppm";
 
 width, height := 1024, 1024;
 vertices : [..] Vector3;
-triangles : [..] Triangle;
+indices : [..] Triangle_Indices;
 
 // ----------------------------------------------------------------------------: entry
 
@@ -18,11 +18,11 @@ main :: () {
     image := make_image(width, height, BLACK);
     defer free_image(*image);
 
-    load_obj("./assets/diablo.obj", *vertices, *triangles);
+    load_obj("./assets/diablo.obj", *vertices, *indices);
 
     t0 := current_time_monotonic(); // Drawing
 
-    for triangles {
+    for indices {
         draw_triangle(*image, it, RED);
     }
 
@@ -41,13 +41,13 @@ main :: () {
     if ok2 print("Total time: % seconds\n", total_seconds);
 
     array_free(vertices);
-    array_free(triangles);
+    array_free(indices);
 }
 
-draw_triangle :: (image: *PPM_Image, triangle: Triangle, color: Vector4 = RED) {
-    a := project(vertices[triangle.a]);
-    b := project(vertices[triangle.b]);
-    c := project(vertices[triangle.c]);
+draw_triangle :: (image: *PPM_Image, indices: Triangle_Indices, color: Vector4 = RED) {
+    a := project(vertices[indices.a]);
+    b := project(vertices[indices.b]);
+    c := project(vertices[indices.c]);
 
     draw_line(image, a, b, color);
     draw_line(image, b, c, color);
