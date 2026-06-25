@@ -5,6 +5,7 @@
 // make_image  :: (width: int, height: int, background_color: Vector4) -> PPM_Image
 // free_image  :: (image: *PPM_Image)
 //
+// get_pixel :: (image: *PPM_Image, x: int, y: int) -> Vector4
 // set_pixel   :: (image: *PPM_Image, x: int, y: int, color: Vector4)
 // set_pixel   :: (image: *PPM_Image, pos: Vector2, color: Vector4)
 // clear_color :: (image: *PPM_Image, color: Vector4)
@@ -60,6 +61,16 @@ set_pixel :: (image: *PPM_Image, x: int, y: int, color: Vector4) {
     if y < 0 || y >= image.height return;
 
     image.pixels[y * image.width + x] = color;
+}
+
+get_pixel :: (image: *PPM_Image, x: int, y: int) -> Vector4 {
+    assert(x >= 0);
+    assert(x < image.width);
+    assert(y >= 0);
+    assert(y < image.height);
+
+    index := y * image.width + x;
+    return image.pixels[index];
 }
 
 clear_color :: (image: *PPM_Image, color: Vector4) {
